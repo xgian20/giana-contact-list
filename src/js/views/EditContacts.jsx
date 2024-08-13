@@ -1,31 +1,47 @@
-import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
 
-const AddContact = () => {
-
+const EditContacts = () => {
     const { store, actions } = useContext(Context);
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
-    const [address, setAddress] = useState("");
-
+    const [address, setAddress] = useState(""); 
+    
     let navigate = useNavigate();
+    let params = useParams();
 
-    const submitContacts = (e) => {
+    useEffect(() => {
+        loadContacts();
+    }, []);
+
+    const loadContacts = () => {
+        fetch(`https://playground.4geeks.com/contact/agendas/xgian/contacts/${params.id}`)
+        .then(response => response.json())
+        .then(data => {
+            setName(data.name);
+            setAddress(data.address);
+            setEmail(data.email);
+            setPhone(data.phone);
+        });
+    };
+
+    const editContact = (e) => {
         e.preventDefault();
-        actions.setNewContact(name, email, phone, address);
+        const contactId = params.id; 
+        actions.updateContact(contactId, { name, email, phone, address });
         setName("");
         setEmail("");
         setPhone("");
         setAddress("");
-        navigate("/");
-    }
+        navigate("/"); 
+    };
 
     return (
         <>
-            <div>
-                <h3>Name</h3>
+            <div style={{textAlign: "center"}} >
+            <h3>Name</h3>
                 <input
                     type='text'
                     placeholder='Enter name'
@@ -55,10 +71,10 @@ const AddContact = () => {
                 />
                 <br></br>
                 <br></br>
-                <button onClick={(e) => submitContacts(e)} type="submit" className="btn btn-primary">Create</button>
+                <button onClick={editContact} type="submit" className="btn btn-primary">Submit</button>
             </div>
         </>
     );
 }
 
-export default AddContact;
+export default EditContacts;
